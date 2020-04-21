@@ -15,9 +15,17 @@ const app = express();
 app.use(express.json());
 app.use(routes);
 
+// Global Error Middleware
 app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
   if (err instanceof AppError) {
     return response.status(err.statusCode).json({
+      status: 'error',
+      message: err.message,
+    });
+  }
+  // Se o ID nao for do padrao uuid ele vai cair nesse erro
+  if (err.name === 'QueryFailedError') {
+    return response.status(400).json({
       status: 'error',
       message: err.message,
     });
